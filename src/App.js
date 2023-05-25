@@ -1,208 +1,88 @@
-import React, { useState } from "react";
-import "./App.css";
+import React, { useState, useEffect } from 'react';
 
-class BasicForm extends React.Component {
-    state = {
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        age: 0,
-        success: false,
-    };
+function App() {
+    const [users, setUsers] = useState([]);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [loggedIn, setLoggedIn] = useState(false);
 
-    handleInputChange = (event) => {
-        const { name, value } = event.target;
-        this.setState((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
+    useEffect(() => {
+        // Check if user data exists in localStorage
+        const storedUsers = JSON.parse(localStorage.getItem('users'));
 
-    handleSubmit = (event) => {
+        if (storedUsers) {
+            setUsers(storedUsers);
+        } else {
+            // Create mock users
+            const mockUsers = [
+                { id: 1, username: 'user1', password: 'pass1' },
+                { id: 2, username: 'user2', password: 'pass2' },
+                { id: 3, username: 'user3', password: 'pass3' },
+            ];
+
+            // Store mock users in localStorage
+            localStorage.setItem('users', JSON.stringify(mockUsers));
+
+            // Set state with mock users
+            setUsers(mockUsers);
+        }
+    }, []);
+
+    const handleLogin = (event) => {
         event.preventDefault();
-        const { firstName, lastName, email, password, age } = this.state;
-        this.props.onSubmit({ firstName, lastName, email, password, age });
-        this.setState({ success: true });
+
+        // Find user with given username
+        const user = users.find((user) => user.username === username);
+
+        if (user && user.password === password) {
+            // Successful authentication
+            setLoggedIn(true);
+        } else {
+            // Authentication error
+            alert('(!) ERROR. Invalid LOGIN ...');
+        }
     };
 
-    render() {
-        const { firstName, lastName, email, password, age, success } = this.state;
+    const handleLogout = () => {
+        setLoggedIn(false);
+    };
+
+    if (loggedIn) {
         return (
-            <form onSubmit={this.handleSubmit}>
-                <label>
-                    First Name
-                    <input
-                        type="text"
-                        name="firstName"
-                        value={firstName}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Last Name
-                    <input
-                        type="text"
-                        name="lastName"
-                        value={lastName}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Email
-                    <input
-                        type="email"
-                        name="email"
-                        value={email}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Password
-                    <input
-                        type="password"
-                        name="password"
-                        value={password}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Age
-                    <input
-                        type="number"
-                        name="age"
-                        value={age}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <button type="submit">Submit</button>
-                {success && <p>Data loaded successfully!</p>}
-            </form>
+            <div style={{ textAlign: 'center', fontFamily: 'Arial, sans-serif', borderRadius: '10px' }}>
+                <h1 style={{ backgroundColor: '#f2f2f2', padding: '1rem', borderRadius: '10px 10px 0 0' }}>You are logged in!</h1>
+                <button style={{ marginTop: '1rem', backgroundColor: '#f2f2f2', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer' }} onClick={handleLogout}>
+                    Log out
+                </button>
+            </div>
         );
     }
-}
-
-class ExtendedForm extends BasicForm {
-    state = {
-        ...super.state,
-        address: "",
-        phone: "",
-    };
-
-    handleInputChange = (event) => {
-        const { name, value } = event.target;
-        this.setState((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
-
-    handleSubmit = (event) => {
-        event.preventDefault();
-        const { firstName, lastName, email, password, age, address, phone } = this.state;
-        this.props.onSubmit({ firstName, lastName, email, password, age, address, phone });
-        this.setState({ success: true });
-    };
-
-    render() {
-        const { firstName, lastName, email, password, age, address, phone, success } = this.state;
-        return (
-            <form onSubmit={this.handleSubmit}>
-                <label>
-                    First Name
-                    <input
-                        type="text"
-                        name="firstName"
-                        value={firstName}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Last Name
-                    <input
-                        type="text"
-                        name="lastName"
-                        value={lastName}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Email
-                    <input
-                        type="email"
-                        name="email"
-                        value={email}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Password
-                    <input
-                        type="password"
-                        name="password"
-                        value={password}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Age
-                    <input
-                        type="number"
-                        name="age"
-                        value={age}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Address
-                    <input
-                        type="text"
-                        name="address"
-                        value={address}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <label>
-                    Phone
-                    <input
-                        type="text"
-                        name="phone"
-                        value={phone}
-                        onChange={this.handleInputChange}
-                    />
-                </label>
-                <br />
-                <button type="submit">Submit</button>
-                {success && <p>Data loaded successfully!</p>}
-            </form>
-        );
-    }
-}
-
-const App = () => {
-    const handleSubmit = (data) => {
-        console.log(data);
-    };
 
     return (
-        <div className="App">
-            <p>Basic Interface</p>
-            <BasicForm onSubmit={handleSubmit} />
-            <p>Extended Interface</p>
-            <ExtendedForm onSubmit={handleSubmit} />
-        </div>
+        <form style={{ textAlign: 'center', fontFamily: 'Arial, sans-serif', borderRadius: '10px' }} onSubmit={handleLogin}>
+            <label style={{ display: 'block', marginTop: '1rem' }}>
+                Username:
+                <input
+                    type="text"
+                    style={{ marginLeft: '1rem', padding: '0.5rem', borderRadius: '5px', border: '1px solid #ccc' }}
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                />
+            </label>
+            <label style={{ display: 'block', marginTop: '1rem' }}>
+                Password:
+                <input
+                    type="password"
+                    style={{ marginLeft: '1rem', padding: '0.5rem', borderRadius: '5px', border: '1px solid #ccc' }}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                />
+            </label>
+            <button style={{ marginTop: '1rem', backgroundColor: '#f2f2f2', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer' }} type="submit">
+                Log in
+            </button>
+        </form>
     );
-};
+}
 
 export default App;
